@@ -1,3 +1,6 @@
+
+#not all neccessary, but this is the default 'node' .gitignore
+
 # Logs
 logs
 *.log
