@@ -1,4 +1,6 @@
 
+// nice-bot :: src/Utils.js
+
 // utilities to ease code use and make it more readable
 
 module.exports.modelJson = ( obj, model ) =>

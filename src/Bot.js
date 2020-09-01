@@ -1,6 +1,8 @@
 
+// nice-bot :: src/Bot.js
+
 const DISCORD = require('discord.js');
-var DEFAULTDATA = require( './BotDefault.json' );
+const DEFAULTDATA = require( './BotDefault.json' );
 const UTILS = require( './Utils' );
 
 module.exports = class Bot extends DISCORD.Client {
@@ -31,7 +33,6 @@ module.exports = class Bot extends DISCORD.Client {
                 DEFAULTDATA
             )
         );
-        console.log( this.botData );
         
         this.on( 'ready', this.onReady );
         this.on( 'message', this.onMessage );
@@ -47,19 +48,33 @@ module.exports = class Bot extends DISCORD.Client {
         if ( msg.author.id == this.user.id && ! msg.content.startsWith( `${ this.botData.cmd.prefix }#` ) )
             return; // do not respond to self
 
-        console.log( `<${ msg.author.name }#${ msg.author.descriminator }> ${ [ msg.content ] }`);
+        // log the message
+        console.log( `<${ msg.author.username }#${ msg.author.discriminator }> ${ [ msg.content ] }`);
+
+        // note to the uninitiated:
+        //  array.some( pred ) is like C++'s std::any_of( array.begin, array.end, pred )
+        // so basically, it's a for each.
+        // But with the twist being: when one 'true' is returned, it stops and returns true itself.
+        // Otherwise it continues and eventually returns false
+        // So take my advise: LEARN THOSE ALGORITHMS :)
+
         try
         {
+            // test all listeners, in sequence
             this.botData.listenerSequence.some( listenerName =>
             {
                 const listener = this.botData[ listenerName ];
+                // check if this listener is called
                 if ( ! UTILS.isPadded( msg.content, listener.prefix, listener.postfix ) )
-                    return false;
+                    return false; // nope
                 msg.content = UTILS.cutPadding( msg.content, listener.prefix, listener.postfix );
+                // now check every entry
+                // also false if none match
                 return Object.keys( listener.entries ).some( name =>
                     {
                         if ( ! RegExp( name ).test( msg.content ) )
                             return false;
+                        // for a match, call the handler function
                         this[ `handle_${ listenerName }` ]( msg, listener.entries[ name ] );
                         return true;
                     }
@@ -68,6 +83,7 @@ module.exports = class Bot extends DISCORD.Client {
         }
         catch ( e )
         {
+            // oh no
             console.log( "a message caused an error:" );
             console.log( e );
         }
@@ -78,7 +94,8 @@ module.exports = class Bot extends DISCORD.Client {
         [ "reply", "channel.send" ].some( type =>
         {
             if ( ! entry.hasOwnProperty( type ) )
-                return false;
+                return false; // not present
+            // otherwise proceed
             UTILS.callPathOnObject( msg, type, entry[ type ] );
             return true;
         });
@@ -86,6 +103,8 @@ module.exports = class Bot extends DISCORD.Client {
 
     handle_cmd( msg, entry )
     {
+        // cmd is in development, totally not finished
+
         var [ cmd, args ] = UTILS.parseCmdArgs( msg.content );
         if ( cmd.startsWith( '#' ) ) cmd = cmd.substr( 1 );
         switch ( cmd )
@@ -121,7 +140,6 @@ module.exports = class Bot extends DISCORD.Client {
 
     handle_response( msg, entry )
     {
-        console.log( "response!" );
         this.handle_call( msg, entry );
     }
 
