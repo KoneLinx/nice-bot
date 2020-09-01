@@ -1,0 +1,12 @@
+.git
+
+# vscode
+.vscode
+
+# node.js
+node_modules
+
+# local source
+src/**/_*
+bot.json
+test.js

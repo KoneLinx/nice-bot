@@ -1,0 +1,40 @@
+{
+
+    "listenerSequence": [
+        "cmd",
+        "call",
+        "response"
+    ],
+
+    "cmd": {
+        "prefix": "`",
+        "postfix": "`",
+
+        "entries": {
+            ".": {}
+        }
+    },
+
+    "call": {
+        "prefix": "!",
+        "postfix": "",
+
+        "entries": {
+            "^ping.?$": {
+                "reply": "pong!"
+            }
+        }
+    },
+
+    "response": {
+        "prefix": "",
+        "postfix": "",
+
+        "entries": {
+            "^([hH](ello|i)|[wW]elcome) <@! bot user id >": {
+                "channel.send": "Hi!"
+            }
+        }
+    }
+
+}

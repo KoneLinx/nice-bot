@@ -1,0 +1,14 @@
+{
+    
+    "debug": false,
+    "token": "",
+
+    "listenerSequence": [],
+
+    "listenerDefault": {
+        "prefix": ".",
+        "postfix": "",
+        "entries": {}
+    }
+
+}

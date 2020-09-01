@@ -1,0 +1,12 @@
+{
+  "name": "nice-bot",
+  "version": "0.1.0",
+  "description": "Nice bot for cozy places :D",
+  "main": "index.js",
+
+  "author": "じえっる〔JL_.〕#1606",
+  "license": "GPLv3",
+  "dependencies": {
+    "discord.js": "^12.3.1"
+  }
+}
