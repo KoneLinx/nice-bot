@@ -49,7 +49,7 @@ module.exports = class Bot extends DISCORD.Client {
             return; // do not respond to self
 
         // log the message
-        console.log( `<${ msg.author.username }#${ msg.author.discriminator }> ${ [ msg.content ] }`);
+        console.log( `'${ msg.guild.name }'#${ msg.channel.name } <${ msg.author.username }#${ msg.author.discriminator }> ${ [ msg.content ] }`);
 
         // note to the uninitiated:
         //  array.some( pred ) is like C++'s std::any_of( array.begin, array.end, pred )
@@ -126,7 +126,6 @@ module.exports = class Bot extends DISCORD.Client {
                         type = "reply";
                     }
                     (this.botData[ listener ].entries[ `${ query }` ] = {})[ type ] = args.join( ' ' );
-                    console.log( this.botData[ listener ] );
                     msg.channel.send( `response added` );
                 }
                 break;
