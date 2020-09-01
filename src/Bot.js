@@ -45,8 +45,9 @@ module.exports = class Bot extends DISCORD.Client {
     
     onMessage( msg )
     {
+
         // log the message
-        console.log( `'${ msg.guild.name }'#${ msg.channel.name } <${ msg.author.username }#${ msg.author.discriminator }> ${ [ msg.content ] }`);
+        console.log( `'${ msg.channel.guild.name }'#${ msg.channel.name } <${ msg.author.username }#${ msg.author.discriminator }> ${ [ msg.content ] }`);
 
         if ( msg.author.id == this.user.id && ! msg.content.startsWith( `${ this.botData.cmd.prefix }#` ) )
             return; // do not respond to self
@@ -105,36 +106,51 @@ module.exports = class Bot extends DISCORD.Client {
     {
         // cmd is in development, totally not finished
 
-        var [ cmd, args ] = UTILS.parseCmdArgs( msg.content );
-        if ( cmd.startsWith( '#' ) ) cmd = cmd.substr( 1 );
-        switch ( cmd )
-        {
-            case "add":
-                var [ listener, query ] = args.splice( 0, 2 );
-                if ( listener == 'help' )
-                    msg.channel.send( `\`add <listener> <expression> [-reply] <response>\`` );
-                else if ( ! this.botData.hasOwnProperty( listener ) )
-                    msg.channel.send( `no listener named: \`${ listener }\`` );
-                else if ( query.length < 4 )
-                    msg.channel.send( `listen query cannot be less than 4 characters: \`${ query }\`` );
-                else
+        UTILS.parseCmdArgs(
+            [ '\'' ].reduce(
+                ( mod, char ) =>
                 {
-                    var type = "channel.send";
-                    if ( args[ 0 ] == '-reply' )
-                    {
-                        args.shift();
-                        type = "reply";
-                    }
-                    (this.botData[ listener ].entries[ `${ query }` ] = {})[ type ] = args.join( ' ' );
-                    msg.channel.send( `response added` );
+                    return mod.split( char ).join( '"' );
+                },
+                msg.content
+            ),
+            ( cmd, args, opts ) =>
+            {
+                if ( cmd.startsWith( '#' ) ) cmd = cmd.substr( 1 );
+
+                switch ( cmd )
+                {
+                    case "add":
+                        var [ listener, query ] = args.splice( 0, 2 );
+                        if ( listener == 'help' )
+                            msg.channel.send( `\`add <listener> <expression> [-reply] <response>\`` );
+                        else if ( ! this.botData.hasOwnProperty( listener ) )
+                            msg.channel.send( `no listener named: \`${ listener }\`` );
+                        else if ( query.length < 4 )
+                            msg.channel.send( `listen query cannot be less than 4 characters: \`${ query }\`` );
+                        else
+                        {
+                            var type = "channel.send";
+                            if ( opts.reply ?? opts.r ?? false )
+                                type = "reply";
+                            console.log( `added: ${ query }` );
+                            (this.botData[ listener ].entries[ `${ query }` ] = {})[ type ] = args.join( ' ' );
+                            msg.channel.send( `response added` );
+                        }
+                        break;
+                    case "say":
+                        msg.channel.send( args.join( ' ' ) );
+                        break;
+                    case "mention":
+                        msg.channel.send( UTILS.mention( msg.author ) );
+                        break;
+                    default:
+                        msg.channel.send( `Unknown command: \`${ cmd }\`` );
                 }
-                break;
-            case "say":
-                msg.channel.send( args.join( ' ' ) );
-                break;
-            default:
-                msg.channel.send( `Unknown command agruments for \`${ cmd }\`: \`${ args.join( '\` \`' ) }\`` );
-        }
+                
+
+            }
+        );
     }
 
     handle_response( msg, entry )

@@ -63,8 +63,26 @@ module.exports.mapJump = ( array, fn, jumpfn, beginvalue = 0 ) =>
     return out
 }
 
-module.exports.parseCmdArgs = ( input, delimeter = ' ' ) =>
+module.exports.legacy_parseCmdArgs = ( input, delimeter = ' ' ) =>
 {
     input = input.split( delimeter );
     return [ input.shift( ), input ];
+}
+
+const { exec } = require( 'child_process' );
+module.exports.parseCmdArgs = ( input, callBack ) =>
+{
+    exec( `node lib/argentum ${ input }`,
+        ( error, stdout, stderr ) =>
+        {
+            if ( error ) throw 1;
+            var object = JSON.parse( stdout );
+            callBack( object.args.shift(), object.args, object.opts );
+        }
+    )
+}
+
+module.exports.mention = ( user ) =>
+{
+    return `<@${ user.bot ? '!': '' }${ user.id }>`;
 }
