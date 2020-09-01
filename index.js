@@ -1,1 +1,1 @@
-require( './src/index' )( require( './bot.json' ) ); // see bot.example.json
+require( './src' )( require( './bot.json' ) ); // see bot.example.json

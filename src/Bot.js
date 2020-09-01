@@ -36,6 +36,9 @@ module.exports = class Bot extends DISCORD.Client {
         
         this.on( 'ready', this.onReady );
         this.on( 'message', this.onMessage );
+
+        //same functionallity for response and call
+        this.handle_response = this.handle_call;
     }
     
     onReady( )
@@ -105,6 +108,7 @@ module.exports = class Bot extends DISCORD.Client {
     handle_cmd( msg, entry )
     {
         // cmd is in development, totally not finished
+        console.log( msg.content );
 
         UTILS.parseCmdArgs(
             [ '\'' ].reduce(
@@ -151,11 +155,6 @@ module.exports = class Bot extends DISCORD.Client {
 
             }
         );
-    }
-
-    handle_response( msg, entry )
-    {
-        this.handle_call( msg, entry );
     }
 
 };

@@ -1,7 +1,7 @@
 
 const Bot = require('./Bot');
 
-module.exports = (botData) =>
+module.exports = ( botData ) =>
 {
 
     // no login when in debug mode
