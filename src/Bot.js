@@ -127,7 +127,7 @@ module.exports = class Bot extends DISCORD.Client {
                     case "add":
                         var [ listener, query ] = args.splice( 0, 2 );
                         if ( listener == 'help' )
-                            msg.channel.send( `\`add <listener> <expression> [-reply] <response>\`` );
+                            msg.channel.send( `\`add <listener> [--name=<name>] <expression> [--reply] <response>\`\nAdd a callout` );
                         else if ( ! this.botData.hasOwnProperty( listener ) )
                             msg.channel.send( `no listener named: \`${ listener }\`` );
                         else if ( query.length < 4 )
@@ -147,6 +147,59 @@ module.exports = class Bot extends DISCORD.Client {
                         break;
                     case "mention":
                         msg.channel.send( UTILS.mention( msg.author ) );
+                        break;
+                    case "get":
+                        cmd = args.shift( );
+                        if ( cmd == null )
+                            msg.channel.send( `\`${ this.botData.listenerSequence.join( '\`\n\`' ) }\``);
+                        else if ( cmd == 'help' )
+                            msg.channel.send( `\`get <listener> [entry] [-e]\`\nGet all entries of <listener>` );
+                        else if ( ! this.botData.hasOwnProperty( cmd ) )
+                            msg.channel.send( `no listener named: \`${ cmd }\`` );
+                        else
+                        {
+                            if ( args[ 0 ] == null )
+                                msg.channel.send(
+                                    Object.entries( this.botData[ cmd ].entries ).map(
+                                        entry =>
+                                        {
+                                            return `\`${ entry[ 1 ].name ?? entry[ 0 ] }\`: ${ entry[ 1 ].description ?? '' }`;
+                                        }
+                                    ).join( '\n' )
+                                );
+                            else
+                                Object.entries( this.botData[ cmd ].entries ).some(
+                                    entry =>
+                                    {
+                                        if ( entry[ 1 ].name != args[ 0 ] )
+                                            return false;
+                                        if ( opts.e ?? false )
+                                            msg.channel.send( `\`${ entry[ 0 ] }\`` );
+                                        else
+                                            msg.channel.send( `try saying:\n> ${ this.botData[ cmd ].prefix }${ entry[ 1 ].example }` );
+                                    }
+                                );
+                        }
+                        break;
+                    case "example":
+                        cmd = args.shift( );
+                        if ( cmd == 'help' )
+                            msg.channel.send( `\`example <listener> <entry>\`\nGet an example of the callout` );
+                        else if ( ! this.botData.hasOwnProperty( cmd ) )
+                            msg.channel.send( `no listener named: \`${ cmd }\`` );
+                        else
+                        {
+                            Object.entries( this.botData[ cmd ].entries ).some(
+                            entry =>
+                            {
+                                if ( entry[ 1 ].name != args[ 0 ] )
+                                    return false;
+                                msg.channel.send( `try saying:\n> ${ this.botData[ cmd ].prefix }${ entry[ 1 ].example }` );
+                            });
+                        }
+                        break;
+                    case "help":
+                        msg.channel.send( 'To which I say, drown.' );
                         break;
                     default:
                         msg.channel.send( `Unknown command: \`${ cmd }\`` );

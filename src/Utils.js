@@ -183,31 +183,39 @@ module.exports.parseCmdArgs = ( input, callBack ) =>
     
     for ( var index = 0; index < input.length; ++index )
     {
-        if ( captures.some( char => { return (idk = input[ index + 1 ]) == char } ) )
-        {
-            ++index;
-            var newIndex = input.indexOf( idk, index + 1 ) >>> 0;
+      if ( captures.some( char => { return (idk = input[ index + 1 ]) == char } ) )
+      {
+          ++index;
+          var newIndex = input.indexOf( idk, index + 1 ) >>> 0;
+          out.push( input.slice( index + 1, newIndex ) );
+          index = newIndex - 1;
+      }
+      else if ( input.substr( index + 1, 2 ) == opt + opt )
+      {
+          var newIndex = input.indexOf( '=', index + 1 ) >>> 0;
+          if ( newIndex > input.indexOf( delimiter, index + 1 ) )
+          {
+            newIndex = input.indexOf( delimiter, index + 1 ) >>> 0;
             out.push( input.slice( index + 1, newIndex ) );
             index = newIndex - 1;
-        }
-        else if ( input.substr( index + 1, 2 ) == opt + opt )
-        {
-            var newIndex = input.indexOf( '=', index + 1 ) >>> 0;
-            if ( ! captures.some( char => { return (idk = input[ index + 1 ]) == char } ) )
-                idk = delimiter;
+          }
+          else
+          {
+            if ( ! captures.some( char => { return (idk = input[ newIndex + 1 ]) == char } ) )
+              idk = delimiter;
             newIndex = input.indexOf( idk, newIndex + 2 ) >>> 0;
             out.push( input.slice( index + 1, newIndex ).replace( idk, '' ) );
             index = newIndex - 1;
-        }
-        else if ( input[ index ] == delimiter )
-        {
-            var newIndex = input.indexOf( delimiter, index + 1 ) >>> 0;
-            out.push( input.slice( index + 1, newIndex ) );
-            index = newIndex - 1;
-        }
+          }
+      }
+      else if ( input[ index ] == delimiter )
+      {
+          var newIndex = input.indexOf( delimiter, index + 1 ) >>> 0;
+          out.push( input.slice( index + 1, newIndex ) );
+          index = newIndex - 1;
+      }
     }
 
     var obj = ARGENTUM( out );
-    console.log( obj );
     callBack( obj.args.shift( ) , obj.args, obj.opts );
 }
