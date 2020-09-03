@@ -9,4 +9,5 @@ node_modules
 # local source
 src/**/_*
 bot.json
-test.js
+bot.bak.json
+test

@@ -3,6 +3,13 @@
 
 // utilities to ease code use and make it more readable
 
+/**
+ * Model an object to match the model.
+ * Obj modified by reference.
+ * 
+ * @param { {} } obj Object to model.
+ * @param { {} } model Model object
+ */
 module.exports.modelJson = ( obj, model ) =>
 {
     Object.entries( model ).forEach(
@@ -26,49 +33,96 @@ function getPathArrayOnObject( obj, path )
     return path.reduce(
         ( stack, prop ) =>
         {
-            return stack[ prop ];
+            return ( stack ?? {} )[ prop ];
         },
         obj
     );
 }
 
+/**
+ * Get data from path of object.
+ *
+ * @param { any } obj Object holding the data.
+ * @param { string } path Path to apply on the data object.
+ * @return { any | undefined } Value found at path. undefined if nonexistent.
+ */
 module.exports.getPathOnObject = ( obj, path ) =>
 {
     return getPathArrayOnObject( obj, path.split( '.' ) );
 }
 
+/**
+ * Call funtion by path of object.
+ *
+ * @param { any } obj Object holding the data.
+ * @param { string } path Path to apply on the data object.
+ * @return { any | undefined } Value returned by the funtion found at path. undefined if nonexistent.
+ */
 module.exports.callPathOnObject = ( obj, path, ...args ) =>
 {
     path = path.split( '.' );
-    return getPathArrayOnObject( obj, path.slice( 0, -1 ) )[ path.pop() ]( ...args );
+    return ( getPathArrayOnObject( obj, path.slice( 0, -1 ) ) ?? {} )[ path.pop() ]( ...args );
 }
 
+/**
+ * Check whether the string a padded with a preix and postfix.
+ *
+ * @param { string } string String to test.
+ * @param { string } prefix Prefix.
+ * @param { string } postfix Postfix. Prefix if omitted
+ * @return { boolean } test result.
+ */
 module.exports.isPadded = ( string, prefix, postfix = prefix ) =>
 {
     return string.startsWith( prefix ) && string.endsWith( postfix );
 }
 
+/**
+ * Check whether the string a padded with a preix and postfix.
+ * Object modified by reference.
+ * 
+ * @param { string } string String to modify.
+ * @param { string } prefix Prefix.
+ * @param { string } postfix Postfix. Prefix if omitted
+ */
 module.exports.cutPadding = ( string, prefix, postfix = prefix ) =>
 {
-    if ( postfix.length == 0 ) return string.substr( prefix.length );
-    return string.slice( prefix.length, - postfix.length );
+    string = string.slice(
+        string.startsWith( prefix ) ? prefix.length : 0,
+        string.endsWith( postfix ) ? ( postfix.length == 0 ? ( -1 >>> 0 ) : - postfix.length ) : -1 >>> 0
+    );
+    return string;
 }
 
-module.exports.mapJump = ( array, fn, jumpfn, beginvalue = 0 ) =>
+/**
+ * Similar to Array.prototype.map().
+ * Instead, rely on jumpCallBack to sequence indecies 
+ * 
+ * @param { any[] } array array.
+ * @param { } callBack Main callBack function.
+ * @param { } jumpCallBack Index jump function. ++index if omitted
+ * @param { number } beginValue Starting value. 0 if omitted
+ */
+module.exports.mapJump = ( array, callBack, jumpCallBack = ( i ) => { ++i; }, beginValue = 0 ) =>
 {
     var out = [];
-    for ( var index = beginvalue ; index < array.length ; index = jumpfn( index, array[ index ], array ) )
+    for ( var index = beginValue ; index < array.length ; index = jumpfn( index, array[ index ], array ) )
         out.push( fn( array[ index ], index, array ) );
 
     return out
 }
 
+//legacy
+/*
 module.exports.legacy_parseCmdArgs = ( input, delimeter = ' ' ) =>
 {
     input = input.split( delimeter );
     return [ input.shift( ), input ];
 }
+*/
 
+//legacy
+/*
 const { exec } = require( 'child_process' );
 module.exports.legacy2_parseCmdArgs = ( input, callBack ) =>
 {
@@ -85,7 +139,10 @@ module.exports.legacy2_parseCmdArgs = ( input, callBack ) =>
         }
     );
 }
+*/
 
+// Nope
+/*
 module.exports.devparseCmdArgs = ( input ) =>
 {
     var delimeter = ' ', captureChars = [ '"', '"', '`' ], out = [];
@@ -121,14 +178,36 @@ module.exports.devparseCmdArgs = ( input ) =>
 
     return out.flat();
 }
+*/
 
 module.exports.mention = ( user ) =>
 {
     return `<@${ user.bot ? '!': '' }${ user.id }>`;
 }
 
+
 const ARGENTUM = require( '../lib/argentum' );
-module.exports.parseCmdArgs = ( input, callBack ) =>
+const WORDEXP = require( '../lib/wordexp.js' );
+/**
+ * Preform word expand on input string and parse it into an object.
+ * 
+ * @param { string } input Input string to word expand and parse.
+ * @return { [ string, string[], any ] } [ cmd, args, opts ]. Parsed values.
+ */
+module.exports.parseCmdArgs = ( input ) =>
+{
+    var parsed = ARGENTUM( WORDEXP( input ) );
+    return [ parsed.args.shift( ), parsed.args, parsed.opts ];
+}
+
+
+/**
+ * Preform word expand on input string and parse it into an object.
+ * 
+ * @param { input } input Input string to word expand and parse.
+ * @return { {} } Object containg parsed input.
+ */
+module.exports.legacy3parseCmdArgs = ( input ) =>
 {
 
     // the worst code in the universe lies ahead. Only those willing to vomit shall proceed
