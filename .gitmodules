@@ -1,3 +1,6 @@
 [submodule "lib/wordexp.js"]
 	path = lib/wordexp.js
 	url = https://github.com/KoneLinx/wordexp.js.git
+[submodule "lib/argentum"]
+	path = lib/argentum
+	url = https://github.com/rumkin/argentum.git
