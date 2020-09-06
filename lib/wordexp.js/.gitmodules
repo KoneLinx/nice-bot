@@ -1,3 +1,0 @@
-[submodule "lib/wordexp.cpp"]
-	path = lib/wordexp.cpp
-	url = https://github.com/KoneLinx/wordexp.cpp.git
