@@ -89,6 +89,7 @@ module.exports = class Bot extends DISCORD.Client {
                     {
                         return Object.entries( req ).every( entry =>
                         {
+                            console.log( entry );
                             if ( typeof entry[ 1 ] == typeof [] )
                                 return UTILS.callPathOnObject( msg, entry[ 0 ], entry[ 1 ][ 0 ] ) == entry[ 1 ][ 1 ];
                             else
@@ -182,7 +183,7 @@ module.exports = class Bot extends DISCORD.Client {
                         console.log( `added: ${ query }` );
                         (this.botData[ listener ].entries[ `${ query }` ] = {})[ type ] = args.join( ' ' );
                         msg.channel.send( `response added` );
-                        FS.writeFile( './src/' + DATAFILE, JSON.stringify( this.botData ), e => { console.log( e ); } );
+                        this.saveBotData();
                     }
                     break;
 
@@ -232,14 +233,42 @@ module.exports = class Bot extends DISCORD.Client {
                     break;
 
                 case "save":
-                    FS.writeFile( './src/' + DATAFILE, JSON.stringify( this.botData ), e => { console.log( e ); } );
+                    this.saveBotData();
                     msg.channel.send( "Data saved!" );
                     break;
 
                 case "help":
                     msg.channel.send( 'To which I say, drown.' );
                     break;
-
+                case "del":
+                    var [ listener, name ] = args.splice( 0, 2 );
+                    if ( listener == 'help' )
+                        msg.channel.send( `\`del <listener> <entry>\`\nDelete <entry> from <listener>` );
+                    else if ( ! this.botData.hasOwnProperty( listener ) )
+                        msg.channel.send( `no listener named: \`${ listener }\`` );
+                    else
+                    {
+                        console.log( name );
+                        if ( Object.entries( this.botData[ listener ].entries ).some( entry =>
+                        {
+                            console.log( entry );
+                            if ( ( entry[ 1 ].name ?? entry[ 0 ] ) != name )
+                                return false;
+                            delete this.botData[ listener ].entries[ entry[ 0 ] ];
+                            return true;
+                        }))
+                        {
+                            msg.channel.send( `Deleted!` );
+                            if ( opts.nosave )
+                            this.saveBotData();
+                        }
+                        else
+                            msg.channel.send( `No entry named: \`${ name }\` in \`${ listener }\`` );
+                    }
+                    break;
+                case "debug":
+                    console.log( this.botData );
+                    break;
                 default:
                     msg.channel.send( `Unknown command: \`${ cmd }\`` );
             }
@@ -248,6 +277,11 @@ module.exports = class Bot extends DISCORD.Client {
         {
             msg.channel.send( `Your command had a syntax error :( I couldn't handle it.\n\`${ e }\`` );
         }
+    }
+
+    saveBotData()
+    {
+        FS.writeFile( './src/' + DATAFILE, JSON.stringify( this.botData ), e => { console.log( e ); } );
     }
 
 };
