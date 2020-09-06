@@ -1,0 +1,3 @@
+[submodule "lib/wordexp.js"]
+	path = lib/wordexp.js
+	url = https://github.com/KoneLinx/wordexp.js.git
